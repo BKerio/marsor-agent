@@ -4,7 +4,7 @@ import { handleBrowserPrompt } from "@/agent/runner";
 import { printAgentBanner } from "@/agent/banner";
 
 import { connectDb } from "@/db/connect";
-ii
+
 const serverUrl = process.env.AGENT_SERVER_URL ?? "http://localhost:3000";
 
 connectDb().catch(console.error);
