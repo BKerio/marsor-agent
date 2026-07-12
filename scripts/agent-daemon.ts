@@ -3,7 +3,11 @@ import { io } from "socket.io-client";
 import { handleBrowserPrompt } from "@/agent/runner";
 import { printAgentBanner } from "@/agent/banner";
 
+import { connectDb } from "@/db/connect";
+
 const serverUrl = process.env.AGENT_SERVER_URL ?? "http://localhost:3000";
+
+connectDb().catch(console.error);
 
 const socket = io(serverUrl, {
   reconnection: true,
@@ -15,8 +19,8 @@ socket.on("connect", () => {
   socket.emit("agent_register");
 });
 
-socket.on("agent_ready", () => {
-  printAgentBanner();
+socket.on("agent_ready", async () => {
+  await printAgentBanner();
   console.log("Registered as browser agent. Waiting for commands...");
   console.log('Text your WhatsApp bot: "browser on" then "search for AI news"');
 });

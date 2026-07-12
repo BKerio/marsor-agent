@@ -1,0 +1,41 @@
+import "dotenv/config";
+import { connectDb } from "@/db/connect";
+import { Config } from "@/models/config";
+import mongoose from "mongoose";
+
+const BANNER = `
+███╗░░░███╗░█████╗░██████╗░███████╗░█████╗░██████╗░
+████╗░████║██╔══██╗██╔══██╗██╔════╝██╔══██╗██╔══██╗
+██╔████╔██║███████║██████╔╝███████╗██║░░██║██████╔╝
+██║╚██╔╝██║██╔══██║██╔══██╗╚════██║██║░░██║██╔══██╗
+██║░╚═╝░██║██║░░██║██║░░██║███████║╚█████╔╝██║░░██║
+╚═╝░░░░░╚═╝╚═╝░░╚═╝╚═╝░░╚═╝╚══════╝░╚════╝░╚═╝░░╚═╝
+
+            _____
+         .-'     \`-.
+        /   .-=-.   \\
+       /   /  🔴  \\   \\
+       |   |MARSOR|   |
+        \\   \\    /   /
+         \`-. \`-' .-'
+            \`---'
+       _______________
+      /   /     \\   \\
+     |   |  o o  |   |
+      \\   \\  _  /   /
+       \\   \`---'   /
+        \`---------'
+`;
+
+async function main() {
+  await connectDb();
+  await Config.findOneAndUpdate(
+    { key: "banner" },
+    { value: BANNER },
+    { upsert: true, new: true }
+  );
+  console.log("Banner saved to DB!");
+  await mongoose.disconnect();
+}
+
+main().catch(console.error);

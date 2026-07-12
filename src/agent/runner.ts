@@ -8,7 +8,7 @@ export async function handleBrowserPrompt(prompt: string): Promise<string> {
     return 'Send a command, e.g. "search for latest AI news" or "open youtube.com".';
   }
 
-  printAgentBanner();
+  await printAgentBanner();
   console.log(`[agent] prompt: ${trimmed}`);
   const intents = await parseCommand(trimmed);
   const reply = await runIntents(intents);
