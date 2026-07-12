@@ -37,5 +37,5 @@ async function main() {
   console.log("Banner saved to DB!");
   await mongoose.disconnect();
 }
-   t
+   
 main().catch(console.error);
