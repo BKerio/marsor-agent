@@ -1,5 +1,6 @@
 import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
 import path from "node:path";
+import { formatDeepSearch, runDeepSearch, type DeepSearchResult } from "@/agent/search";
 
 const DEFAULT_BRAVE_PATHS = [
   "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe",
@@ -47,37 +48,13 @@ export class BraveBrowser {
     return page.title();
   }
 
-  async search(query: string): Promise<{ title: string; url: string; snippet: string }> {
+  async search(query: string): Promise<DeepSearchResult> {
     const page = await this.ensureOpen();
+    return runDeepSearch(page, query);
+  }
 
-    const engines = [
-      `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`,
-      `https://www.google.com/search?q=${encodeURIComponent(query)}`,
-    ];
-
-    for (const searchUrl of engines) {
-      try {
-        await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 30_000 });
-        const title = await page.title();
-        const url = page.url();
-
-        if (/captcha|unusual traffic|verify/i.test(title + url)) continue;
-
-        let snippet = "";
-        try {
-          const result = page.locator(".result, #search .g, .nrn-react-div").first();
-          snippet = (await result.innerText({ timeout: 5_000 })).slice(0, 500);
-        } catch {
-          snippet = (await page.locator("body").innerText()).slice(0, 300);
-        }
-
-        return { title, url, snippet };
-      } catch {
-        continue;
-      }
-    }
-
-    throw new Error("Search failed on all engines.");
+  formatSearch(result: DeepSearchResult): string {
+    return formatDeepSearch(result);
   }
 
   async getPageInfo(): Promise<{ title: string; url: string; text: string }> {

@@ -1,5 +1,6 @@
 import { getBrowser } from "@/agent/browser";
 import type { BrowserAction, BrowserIntent } from "@/agent/intent";
+import { hostnameFromUrl, toBulletPoints } from "@/agent/format";
 
 export interface StepResult {
   action: BrowserAction;
@@ -7,22 +8,30 @@ export interface StepResult {
   summary: string;
 }
 
+const ACTION_LABELS: Record<BrowserAction, string> = {
+  open: "Browser",
+  search: "Search",
+  navigate: "Navigation",
+  click: "Click",
+  page_info: "Page info",
+  screenshot: "Screenshot",
+};
+
 async function executeOne(intent: BrowserIntent): Promise<StepResult> {
   const browser = getBrowser();
 
   switch (intent.action) {
     case "open": {
       await browser.ensureOpen();
-      return { action: "open", success: true, summary: "Opened Brave browser." };
+      return { action: "open", success: true, summary: "Brave browser opened successfully." };
     }
     case "search": {
       if (!intent.query) throw new Error("Search requires a query.");
       const result = await browser.search(intent.query);
-      const preview = result.snippet ? `\n${result.snippet.slice(0, 200)}` : "";
       return {
         action: "search",
         success: true,
-        summary: `Searched for "${intent.query}" on ${result.url}\nPage: ${result.title}${preview}`,
+        summary: browser.formatSearch(result),
       };
     }
     case "navigate": {
@@ -31,7 +40,7 @@ async function executeOne(intent: BrowserIntent): Promise<StepResult> {
       return {
         action: "navigate",
         success: true,
-        summary: `Opened ${intent.url}\nPage: ${title}`,
+        summary: `Navigated to ${intent.url}. Page title: ${title}`,
       };
     }
     case "click": {
@@ -40,15 +49,20 @@ async function executeOne(intent: BrowserIntent): Promise<StepResult> {
       return {
         action: "click",
         success: true,
-        summary: `Clicked "${intent.text}". Now on: ${title}`,
+        summary: `Clicked "${intent.text}". Now viewing: ${title}`,
       };
     }
     case "page_info": {
       const info = await browser.getPageInfo();
+      const points = toBulletPoints(info.text, 6);
       return {
         action: "page_info",
         success: true,
-        summary: `Title: ${info.title}\nURL: ${info.url}\n\n${info.text.slice(0, 400)}`,
+        summary: [
+          `Title: ${info.title}`,
+          `URL: ${info.url}`,
+          ...points,
+        ].join("\n"),
       };
     }
     case "screenshot": {
@@ -80,12 +94,85 @@ export async function executeIntents(intents: BrowserIntent[]): Promise<StepResu
   return results;
 }
 
+function formatStepBullets(result: StepResult): string[] {
+  const label = ACTION_LABELS[result.action];
+
+  if (!result.success) {
+    return [`*${label}*`, `• Status: Failed`, `• Error: ${result.summary}`];
+  }
+
+  if (result.action === "search") {
+    return [result.summary];
+  }
+
+  const lines: string[] = [`*${label}*`, `• Status: Success`];
+
+  switch (result.action) {
+    case "open":
+      lines.push("• Brave browser is open and ready for commands");
+      break;
+    case "navigate": {
+      const [navLine, titleLine] = result.summary.split(". Page title: ");
+      lines.push(`• Destination: ${navLine.replace("Navigated to ", "")}`);
+      if (titleLine) lines.push(`• Page title: ${titleLine}`);
+      break;
+    }
+    case "click": {
+      const match = result.summary.match(/^Clicked "(.+)"\. Now viewing: (.+)$/);
+      if (match) {
+        lines.push(`• Target clicked: ${match[1]}`);
+        lines.push(`• Current page: ${match[2]}`);
+      } else {
+        lines.push(`• ${result.summary}`);
+      }
+      break;
+    }
+    case "page_info": {
+      const parts = result.summary.split("\n");
+      const title = parts.find((p) => p.startsWith("Title: "))?.replace("Title: ", "");
+      const url = parts.find((p) => p.startsWith("URL: "))?.replace("URL: ", "");
+      if (title) lines.push(`• Title: ${title}`);
+      if (url) {
+        lines.push(`• URL: ${url}`);
+        lines.push(`• Site: ${hostnameFromUrl(url)}`);
+      }
+      const bodyPoints = parts.filter((p) => !p.startsWith("Title:") && !p.startsWith("URL:"));
+      if (bodyPoints.length) {
+        lines.push("• Page highlights:");
+        for (const point of bodyPoints.slice(0, 6)) {
+          lines.push(`  ◦ ${point}`);
+        }
+      }
+      break;
+    }
+    case "screenshot":
+      lines.push(`• File saved: ${result.summary.replace("Screenshot saved to ", "")}`);
+      break;
+    default:
+      lines.push(`• ${result.summary}`);
+  }
+
+  return lines;
+}
+
 function formatReply(results: StepResult[]): string {
   if (results.length === 0) return "Nothing to do.";
 
-  return results
-    .map((r) => (r.success ? `✅ ${r.summary}` : `❌ ${r.summary}`))
-    .join("\n\n");
+  const hasSearchOnly =
+    results.length === 1 && results[0].success && results[0].action === "search";
+
+  if (hasSearchOnly) {
+    return results[0].summary;
+  }
+
+  const lines: string[] = ["📋 *MARSOR Mission Report*", ""];
+
+  for (const result of results) {
+    lines.push(...formatStepBullets(result));
+    lines.push("");
+  }
+
+  return lines.join("\n").trim();
 }
 
 export async function runIntents(intents: BrowserIntent[]): Promise<string> {

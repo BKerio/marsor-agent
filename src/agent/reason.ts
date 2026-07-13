@@ -52,3 +52,30 @@ export async function reasonIntent(prompt: string): Promise<BrowserIntent[]> {
 
   return parsed.filter((step) => VALID_ACTIONS.includes(step.action));
 }
+
+/** One-shot query cleanup — fixes spelling/names before deterministic search. */
+export async function refineSearchQuery(query: string): Promise<string> {
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+  const model = genAI.getGenerativeModel({
+    model: process.env.GEMINI_MODEL ?? "gemini-2.0-flash",
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: SchemaType.OBJECT,
+        properties: {
+          query: { type: SchemaType.STRING },
+        },
+        required: ["query"],
+      },
+    },
+  });
+
+  const result = await model.generateContent(
+    `Fix this web search query. Correct spelling and expand names if obvious. ` +
+      `Return JSON only: {"query":"..."}\n\nInput: "${query}"`
+  );
+
+  const parsed = JSON.parse(result.response.text()) as { query?: string };
+  const refined = parsed.query?.trim();
+  return refined && refined.length > 0 ? refined : query;
+}

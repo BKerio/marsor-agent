@@ -1,3 +1,5 @@
+import { normalizeQuery } from "@/agent/search";
+
 export type BrowserAction =
   | "open"
   | "search"
@@ -27,7 +29,7 @@ function parseChunk(text: string): BrowserIntent | null {
     /^(?:search(?:\s+(?:for|about|on(?:\s+google)?\s+for))?|google)\s+(.+)/i
   );
   if (searchMatch) {
-    return { action: "search", query: searchMatch[1].trim() };
+    return { action: "search", query: normalizeQuery(searchMatch[1]) };
   }
 
   const navMatch = trimmed.match(
