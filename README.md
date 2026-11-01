@@ -7,7 +7,7 @@
 ╚═╝░░░░░╚═╝╚═╝░░╚═╝╚═╝░░╚═╝╚══════╝░╚════╝░╚═╝░░╚═╝
 ```
 
-# Marsor - Your AI Assistant on WhatsApp
+# Marsor - Your AI Assistant on WhatsApp.
 
 > **In one sentence:** Marsor is a smart assistant that lives inside WhatsApp. People chat with it like they would with a real person, and it can answer questions, look things up online, and take M-Pesa payments for you.
 
