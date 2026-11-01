@@ -24,7 +24,7 @@ Most WhatsApp "bots" only follow a fixed menu ("Press 1 for prices, press 2 for 
 | Companion can... | What that means in everyday terms |
 |---|---|
 | **Hold a real conversation** | Customers can type normally - no menus or codes. Companion remembers what was said earlier in the chat. |
-| **Answer questions about your services** | It can explain what you offer, your prices, and how things work. |
+| **Answer questions about your services** | It can explain what you offer, your prices, and how things work. |iii
 | **Look things up on the internet** | If it needs information it doesn't already know, it can open a web browser by itself, search, and read pages - just like a person would. |
 | **Take M-Pesa payments** | It can send a payment prompt straight to a customer's phone. The customer just enters their M-Pesa PIN to pay. |
 | **Confirm payments instantly** | As soon as Safaricom confirms a payment, Companion knows about it and can let your website or app know immediately. |
