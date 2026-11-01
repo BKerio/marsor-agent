@@ -15,7 +15,7 @@
 
 ## What is Companion?
 
-Think of Companion as a **AI Autonomous Agent that does tasks remotely**.
+Think of Companion as a **AI Autonomous Agent that does tasks remotely.**.
 
 Most WhatsApp "bots" only follow a fixed menu ("Press 1 for prices, press 2 for hours..."). Companion is different. It uses artificial intelligence (Google's Gemini) to actually *understand* what someone is asking, even if they type it casually, misspell words, or ask several things at once. It then works out what to do and replies in plain, natural language.
 
