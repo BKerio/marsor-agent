@@ -46,7 +46,7 @@ Most WhatsApp "bots" only follow a fixed menu ("Press 1 for prices, press 2 for 
         └──────────────────────│    database (MongoDB)    │  payment   ┌──────────────────┐
                                │                          │ ─────────► │ Safaricom M-Pesa │
                                └──────────────────────────┘ ◄───────── └──────────────────┘
-                                                            "paid ✓"
+                                                            "paid"
 ```
 
 1. A customer sends a WhatsApp message to your business number.
@@ -75,7 +75,7 @@ Don't worry if some of these are unfamiliar - each one is explained below. Most 
 
 ## Setting it up - step by step
 
-> 💡 The commands below are typed into a **terminal** (also called Command Prompt, PowerShell, or Terminal on Mac). Copy each line, paste it in, and press Enter.
+> **Tip:** The commands below are typed into a **terminal** (also called Command Prompt, PowerShell, or Terminal on Mac). Copy each line, paste it in, and press Enter.
 
 ### Step 1: Download the project and install its parts
 
@@ -127,7 +127,7 @@ MPESA_TRANSACTIONTYPE=CustomerBuyGoodsOnline
 MPESA_CALLBACK_URL=https://your-ngrok-url/api/stkpush/callback
 ```
 
-> ⚠️ **Keep the `.env` file private.** It contains passwords to your accounts. Never share it or upload it anywhere public.
+> **Warning: Keep the `.env` file private.** It contains passwords to your accounts. Never share it or upload it anywhere public.
 
 ### Step 3: Start Marsor
 
@@ -156,9 +156,9 @@ WhatsApp needs to know *where* to send your customers' messages. Because Marsor 
 
 3. Click **Verify and Save**, then turn on (subscribe to) the **messages** option.
 
-4. **Try it out!** Send a WhatsApp message to your business number - Marsor should reply. 🎉
+4. **Try it out!** Send a WhatsApp message to your business number - Marsor should reply.
 
-> 📝 Also update `MPESA_CALLBACK_URL` in your `.env` file to use your ngrok address, so Safaricom can tell Marsor when a payment goes through. Note that the free ngrok address changes every time you restart it, so you'll need to update both places when that happens.
+> **Note:** Also update `MPESA_CALLBACK_URL` in your `.env` file to use your ngrok address, so Safaricom can tell Marsor when a payment goes through. Note that the free ngrok address changes every time you restart it, so you'll need to update both places when that happens.
 
 ---
 
